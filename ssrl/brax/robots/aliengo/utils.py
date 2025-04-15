@@ -1,12 +1,8 @@
-from typing import Dict
-
-import jax
-from jax import numpy as jp
-
-from brax.physics.config_pb2 import Config
 from brax.base import System
 from etils import epath
 from brax.io import mjcf
+from jax import numpy as jp
+import jax
 import dill
 from pathlib import Path
 
