@@ -442,7 +442,11 @@ class AliengoGoFast(RlwamEnv):
             Kd=jp.zeros((12,)),
             contact=jp.array([True, True, True, True]),
             leg_phases=jp.zeros((4,)),
-            pdes=jp.zeros((12,))
+            pdes=jp.zeros((12,)),
+            foot_positions=AliengoUtils.STANDING_FOOT_POSITIONS,
+            phase=0.0,
+            body_height=AliengoUtils.STAND_HEIGHT,
+            inv_gait_period=0.5
         )
         info['cmd'] = empty_cmd
 
