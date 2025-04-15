@@ -1,6 +1,6 @@
 run_name:
 sweep_name:
-env: Go1GoFast
+env: AliengoGoFast
 algo: ssrl
 gpus: '0'
 num_seeds: 1
@@ -235,4 +235,4 @@ save_policy:
   ssrl_all: False
 
 torque_validate:
-  hardware_data: True
+  hardware_data: True 
