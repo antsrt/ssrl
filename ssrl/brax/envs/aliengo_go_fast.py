@@ -1,5 +1,5 @@
-from brax.robots.Aliengo.utils import AliengoUtils
-from brax.robots.Aliengo.gait import AliengoGait, AliengoGaitParams
+from brax.robots.aliengo.utils import AliengoUtils
+from brax.robots.aliengo.gait import AliengoGait, AliengoGaitParams
 from brax.envs.base import RlwamEnv, State
 
 from brax import actuator
@@ -158,7 +158,7 @@ class AliengoGoFast(RlwamEnv):
         # determines high level policy freq; (1/sim_dt)/policy_repeat Hz
         self.policy_repeat = policy_repeat
 
-        sys = AliengoUtils.get_approx_system(used_cached_systems)
+        sys = AliengoUtils.get_system(used_cached_systems)
         sys = sys.replace(dt=self.sim_dt)
 
         # here we are using the fast sim_dt with the approximate system instead

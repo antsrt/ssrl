@@ -30,8 +30,7 @@ _envs = {
     'ant2': ant2.Ant2,
     'fast': fast.Fast,
     'hopper2': hopper2.Hopper2,
-    'walker2d2': walker2d2.Walker2d2,
-    'aliengo_go_fast': aliengo_go_fast.AliengoGoFast,
+    'walker2d2': walker2d2.Walker2d2
 }
 
 
