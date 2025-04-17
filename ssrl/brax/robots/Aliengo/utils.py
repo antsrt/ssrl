@@ -8,39 +8,38 @@ from pathlib import Path
 
 
 class AliengoUtils:
-    """Aliengo robot helper utilities."""
+    """Utility functions for the Aliengo."""
 
-    # constants
-    BODY_LENGTH = 0.363
-    BODY_WIDTH = 0.22
+    """
+    Properties
+    """
+    THIGH_OFFSET = 0.083
+    """constant: the length of the thigh motor"""
 
-    # leg offsets from center of body to hip
-    LEG_OFFSET_X = BODY_LENGTH / 2
-    LEG_OFFSET_Y = BODY_WIDTH / 2
+    LEG_OFFSET_X = 0.2399
+    """constant: x distance from the robot COM to the leg base."""
 
-    # leg link lengths
-    HIP_LENGTH = 0.083
+    LEG_OFFSET_Y = 0.051
+    """constant: y distance from the robot COM to the leg base."""
+
     THIGH_LENGTH = 0.25
-    THIGH_OFFSET = 0.0
+    """constant: length of the thigh"""
+
     CALF_LENGTH = 0.25
-
-    # joint ranges
-    HIP_RANGE = 0.802851  # 46 deg
-    THIGH_RANGE = 0.802851  # 46 deg
-    CALF_RANGE = 1.74533  # 100 deg
-
-    # motors
-    MOTOR_KP = 100.0
-    MOTOR_KD = 2.0
-
-    # environment target pose
-    STAND_HEIGHT = 0.4
+    """constant: length of the calf"""
 
     STANDING_FOOT_POSITIONS = jp.array([
-        0.1815, -0.1300, -0.4000,
-        0.1815, 0.1300, -0.4000,
-        -0.1815, -0.1300, -0.4000,
-        -0.1815, 0.1300, -0.4000
+        0.2399, -0.13, -0.32,
+        0.2399, 0.13, -0.32,
+        -0.2399, -0.13, -0.32,
+        -0.2399, 0.13, -0.32
+    ])
+
+    STANDING_FOOT_POSITIONS = jp.array([
+        0.2399, -0.13, -0.32,
+        0.2399, 0.13, -0.32,
+        -0.2399, -0.13, -0.32,
+        -0.2399, 0.13, -0.32
     ])
 
     STANDING_JOINT_ANGLES_FR = jp.array([-0.01014303, 0.7180088, -1.4360176])
@@ -60,128 +59,16 @@ class AliengoUtils:
 
     LOWER_JOINT_LIMITS = jp.array([-0.873, -0.524, -2.775]) + JOINT_LIMIT_PAD
     """constant: the lower joint angle limits for a leg, obtained from
-    unitree_legged_sdk/include/aliengo_const.h, and offset by JOINT_LIMIT_PAD"""
+    aliengo.xml, and offset by JOINT_LIMIT_PAD"""
 
     UPPER_JOINT_LIMITS = jp.array([1.047, 3.927, -0.611]) - JOINT_LIMIT_PAD
     """constant: the upper joint angle limits for a leg, obtained from
-    unitree_legged_sdk/include/aliengo_const.h, and offset by JOINT_LIMIT_PAD"""
+    aliengo.xml, and offset by JOINT_LIMIT_PAD"""
 
-    MOTOR_TORQUE_LIMIT = jp.tile(jp.array([33.5, 33.5, 40.0]), 4)
+    MOTOR_TORQUE_LIMIT = jp.tile(jp.array([44.0, 44.0, 55.0]), 4)
     """constant: the torque limit for the motors"""
 
-    CACHE_PATH = epath.resource_path('brax') / 'robots/aliengo/.cache'
-
-    @classmethod
-    def standing_foot_positions(cls):
-        """Returns the foot positions for the robot in a standing posture.
-
-        Returns:
-            A numpy array of shape (12,) containing the foot positions in the
-            body frame, organized as [FR, FL, RR, RL], where each foot position
-            is [x, y, z].
-        """
-        return cls.STANDING_FOOT_POSITIONS
-
-    @classmethod
-    def forward_kinematics(cls, q: jp.ndarray):
-        """Computes the forward kinematics for all joints.
-
-        Args:
-            q: An array of shape (12,) containing the joint angles organized as
-              [FR_hip, FR_thigh, FR_calf, FL_hip, FL_thigh, FL_calf,
-               RR_hip, RR_thigh, RR_calf, RL_hip, RL_thigh, RL_calf],
-              where abduction is positive for right legs and negative for left legs.
-
-        Returns:
-            A numpy array of shape (4, 3) containing the foot positions in the body
-            frame, organized as [FR, FL, RR, RL].
-        """
-        q_offset = jp.array([0., -0.6, 1.2] * 4)  # Offset for standing pose
-        q = q + q_offset
-        
-        # Extract joint angles for each leg
-        hip_angles = q[0::3]
-        thigh_angles = q[1::3]
-        calf_angles = q[2::3]
-        
-        # Compute positions for each leg
-        x = cls.THIGH_LENGTH * jp.sin(thigh_angles) + cls.CALF_LENGTH * jp.sin(thigh_angles + calf_angles)
-        y = jp.zeros_like(x)
-        z = -cls.THIGH_LENGTH * jp.cos(thigh_angles) - cls.CALF_LENGTH * jp.cos(thigh_angles + calf_angles)
-        
-        # Apply hip rotation and leg offsets
-        cos_hip = jp.cos(hip_angles)
-        sin_hip = jp.sin(hip_angles)
-        
-        leg_offsets_x = jp.array([cls.LEG_OFFSET_X, cls.LEG_OFFSET_X, -cls.LEG_OFFSET_X, -cls.LEG_OFFSET_X])
-        leg_offsets_y = jp.array([-cls.LEG_OFFSET_Y, cls.LEG_OFFSET_Y, -cls.LEG_OFFSET_Y, cls.LEG_OFFSET_Y])
-        
-        x_rot = x * cos_hip
-        y_rot = x * sin_hip
-        
-        x_world = x_rot + leg_offsets_x
-        y_world = y_rot + leg_offsets_y
-        z_world = z
-        
-        # Organize the result
-        foot_pos = jp.stack([x_world, y_world, z_world], axis=1)
-        return foot_pos
-
-    @classmethod
-    def inverse_kinematics(cls, foot_world_pos: jp.ndarray):
-        """Computes the inverse kinematics for all feet.
-
-        Args:
-            foot_world_pos: An array of shape (4, 3) containing the desired foot
-              positions in the body frame, organized as [FR, FL, RR, RL].
-
-        Returns:
-            A numpy array of shape (12,) containing the joint angles organized as
-              [FR_hip, FR_thigh, FR_calf, FL_hip, FL_thigh, FL_calf,
-               RR_hip, RR_thigh, RR_calf, RL_hip, RL_thigh, RL_calf].
-        """
-        # Get foot positions relative to the hip
-        leg_offsets_x = jp.array([cls.LEG_OFFSET_X, cls.LEG_OFFSET_X, -cls.LEG_OFFSET_X, -cls.LEG_OFFSET_X])
-        leg_offsets_y = jp.array([-cls.LEG_OFFSET_Y, cls.LEG_OFFSET_Y, -cls.LEG_OFFSET_Y, cls.LEG_OFFSET_Y])
-        
-        x_rel = foot_world_pos[:, 0] - leg_offsets_x
-        y_rel = foot_world_pos[:, 1] - leg_offsets_y
-        z_rel = foot_world_pos[:, 2]
-        
-        # Compute hip angle
-        hip_angles = jp.arctan2(y_rel, x_rel)
-        
-        # Get leg length in the x-z plane (after hip rotation)
-        leg_length = jp.sqrt(x_rel**2 + y_rel**2)
-        
-        # Apply inverse hip rotation to get foot positions in leg frame
-        x_leg = leg_length
-        z_leg = z_rel
-        
-        # Compute leg length in leg frame
-        L = jp.sqrt(x_leg**2 + z_leg**2)
-        
-        # Check if the foot position is reachable
-        cos_knee = (L**2 - cls.THIGH_LENGTH**2 - cls.CALF_LENGTH**2) / (2 * cls.THIGH_LENGTH * cls.CALF_LENGTH)
-        cos_knee = jp.clip(cos_knee, -1.0, 1.0)
-        
-        # Compute joint angles
-        calf_angles = jp.arccos(cos_knee)
-        thigh_angles = jp.arctan2(x_leg, -z_leg) - jp.arctan2(
-            cls.CALF_LENGTH * jp.sin(calf_angles),
-            cls.THIGH_LENGTH + cls.CALF_LENGTH * jp.cos(calf_angles)
-        )
-        
-        # Adjust for stand pose offset
-        q_offset = jp.array([0., -0.6, 1.2] * 4)
-        
-        # Organize the result
-        q = jp.zeros((12,))
-        q = q.at[0::3].set(hip_angles)
-        q = q.at[1::3].set(thigh_angles)
-        q = q.at[2::3].set(calf_angles)
-        
-        return q - q_offset 
+    CACHE_PATH = epath.resource_path('brax') / 'robots/Aliengo/.cache'
 
     @staticmethod
     def get_system(used_cached: bool = False) -> System:
@@ -192,7 +79,7 @@ class AliengoUtils:
         else:
             # load in urdf file
             path = epath.resource_path('brax')
-            path /= 'robots/aliengo/xml/aliengo.xml'
+            path /= 'robots/Aliengo/xml/aliengo.xml'
             sys = mjcf.load(path)
 
         return sys
@@ -206,7 +93,7 @@ class AliengoUtils:
         else:
             # load in urdf file
             path = epath.resource_path('brax')
-            path /= 'robots/aliengo/xml/aliengo_approx.xml'
+            path /= 'robots/Aliengo/xml/aliengo_approx.xml'
             sys = mjcf.load(path)
 
         return sys
@@ -240,6 +127,50 @@ class AliengoUtils:
         return path
 
     @staticmethod
+    def forward_kinematics(leg: str, q: jp.ndarray) -> jp.ndarray:
+        """Returns the position of the foot in the body frame centered on the
+           trunk, given the joint angles; (3,)
+
+        Arguments:
+            leg (str): the name of the leg - 'FR', 'FL', 'RR', 'RL'
+            q (jp.ndarray): the joint angles of a leg; (3,)
+        """
+        if leg not in ['FR', 'FL', 'RR', 'RL']:
+            raise ValueError('leg must be one of FR, FL, RR, RL')
+
+        side_sign = jax.lax.select(leg in ['FR', 'RR'], -1, 1)
+
+        l1 = side_sign * AliengoUtils.THIGH_OFFSET
+        l2 = -AliengoUtils.THIGH_LENGTH
+        l3 = -AliengoUtils.CALF_LENGTH
+
+        s1 = jp.sin(q[0])
+        s2 = jp.sin(q[1])
+        s3 = jp.sin(q[2])
+
+        c1 = jp.cos(q[0])
+        c2 = jp.cos(q[1])
+        c3 = jp.cos(q[2])
+
+        c23 = c2 * c3 - s2 * s3
+        s23 = s2 * c3 + c2 * s3
+
+        p0_hip = l3 * s23 + l2 * s2
+        p1_hip = -l3 * s1 * c23 + l1 * c1 - l2 * c2 * s1
+        p2_hip = l3 * c1 * c23 + l1 * s1 + l2 * c1 * c2
+
+        p0 = p0_hip + jax.lax.select(leg in ['FR', 'FL'],
+                                     AliengoUtils.LEG_OFFSET_X,
+                                     -AliengoUtils.LEG_OFFSET_X)
+        p1 = p1_hip + jax.lax.select(leg in ['FR', 'RR'],
+                                     -AliengoUtils.LEG_OFFSET_Y,
+                                     AliengoUtils.LEG_OFFSET_Y)
+        p2 = p2_hip
+
+        p = jp.stack([p0, p1, p2], axis=0)
+        return p
+
+    @staticmethod
     def forward_kinematics_all_legs(q: jp.ndarray) -> jp.ndarray:
         """Returns the positions of the feet in the body frame centered on the
            trunk, given the joint angles; (12,)
@@ -254,6 +185,59 @@ class AliengoUtils:
             AliengoUtils.forward_kinematics('RL', q[9:12]),
         ])
         return p
+
+    @staticmethod
+    def inverse_kinematics(leg: str, p: jp.ndarray) -> jp.ndarray:
+        """Returns the joint angles of a leg given the position of the foot in
+           the body frame centered on the trunk; (3,)
+
+        Arguments:
+            leg (str): the name of the leg - 'FR', 'FL', 'RR', 'RL'
+            p (jp.ndarray): the position of the foot in the body frame; (3,)
+        """
+        if leg not in ['FR', 'FL', 'RR', 'RL']:
+            raise ValueError('leg must be one of FR, FL, RR, RL')
+
+        fx = jax.lax.select(leg in ['RR', 'RL'],
+                            -AliengoUtils.LEG_OFFSET_X,
+                            AliengoUtils.LEG_OFFSET_X)
+        fy = jax.lax.select(leg in ['FR', 'RR'],
+                            -AliengoUtils.LEG_OFFSET_Y,
+                            AliengoUtils.LEG_OFFSET_Y)
+
+        px = p[0] - fx  # TODO: double check
+        py = p[1] - fy
+        pz = p[2]
+
+        b2y = jax.lax.select(leg in ['FR', 'RR'],
+                             -AliengoUtils.THIGH_OFFSET,
+                             AliengoUtils.THIGH_OFFSET)
+        b3z = -AliengoUtils.THIGH_LENGTH
+        b4z = -AliengoUtils.THIGH_LENGTH
+        a = AliengoUtils.THIGH_OFFSET
+        c = jp.sqrt(px**2 + py**2 + pz**2)
+        b = jp.sqrt(c**2 - a**2)
+
+        L = jp.sqrt(py**2 + pz**2 - b2y**2)
+        q1 = jp.arctan2(pz*b2y+py*L, py*b2y-pz*L)
+
+        temp = (b3z**2 + b4z**2 - b**2)/(2*jp.abs(b3z*b4z))
+        q3max = AliengoUtils.UPPER_JOINT_LIMITS[2]
+        q3min = AliengoUtils.LOWER_JOINT_LIMITS[2]
+        # instead of clipping withing -1 and 1, clip per the below to ensure q3
+        # stays within joint limits (and also prevent nan gradients)
+        temp = jp.clip(temp, jp.cos(jp.pi+q3max), jp.cos(jp.pi+q3min))
+        q3 = jp.arccos(temp)
+        q3 = -(jp.pi - q3)
+
+        a1 = py*jp.sin(q1) - pz*jp.cos(q1)
+        a2 = px
+        m1 = b4z*jp.sin(q3)
+        m2 = b3z + b4z*jp.cos(q3)
+        q2 = jp.arctan2(m1*a1+m2*a2, m1*a2-m2*a1)
+
+        q = jp.stack([q1, q2, q3], axis=0)
+        return q
 
     @staticmethod
     def inverse_kinematics_all_legs(p: jp.ndarray) -> jp.ndarray:
@@ -336,7 +320,6 @@ class AliengoUtils:
         vel = jp.matmul(J, qd)
         return vel
 
-    @staticmethod
     def foot_vel_all_legs(q: jp.ndarray, qd: jp.ndarray) -> jp.ndarray:
         """Returns the linear velocities of all feet in the body frame; (12,)
 
@@ -370,4 +353,4 @@ if __name__ == '__main__':
     print(J)
     print(AliengoUtils.standing_foot_positions())
     print(AliengoUtils.inverse_kinematics_all_legs(
-        AliengoUtils.standing_foot_positions())) 
+        AliengoUtils.standing_foot_positions()))

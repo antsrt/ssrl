@@ -245,4 +245,4 @@ def lin_interp(start, end, i, n):
 
 
 if __name__ == '__main__':
-    train_aliengo()
+    train_aliengo() 

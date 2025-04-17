@@ -225,8 +225,8 @@ render:
 
 wandb:
   entity: an-tsaritsin-itmo-university
-  log_sac: True
-  log_ssrl: True
+  log_sac: False
+  log_ssrl: False
 
 save_policy:
   sac: False
@@ -235,4 +235,4 @@ save_policy:
   ssrl_all: False
 
 torque_validate:
-  hardware_data: True
+  hardware_data: True 

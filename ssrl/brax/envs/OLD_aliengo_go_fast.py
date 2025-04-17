@@ -1,5 +1,5 @@
-from brax.robots.Aliengo.utils import AliengoUtils
-from brax.robots.Aliengo.gait import AliengoGait, AliengoGaitParams
+from brax.robots.aliengo.utils import AliengoUtils
+from brax.robots.aliengo.gait import AliengoGait, AliengoGaitParams
 from brax.envs.base import RlwamEnv, State
 
 from brax import actuator
@@ -16,12 +16,13 @@ from jax import numpy as jp
 from typing import Optional, Any, Tuple, Callable
 import jax
 import flax
+import numpy as np
+import dataclasses
 
 
 @flax.struct.dataclass
 class ControlCommand:
-    """Output of the low level controller which includes gait control and
-    inverse kinematics. """
+    """Control command for the Aliengo robot."""
     q_des: jp.ndarray
     qd_des: jp.ndarray
     Kp: jp.ndarray
@@ -276,8 +277,8 @@ class AliengoGoFast(RlwamEnv):
         self._ac_Kd_idxs = jp.s_[21:33]
 
         # define action space
-        dx = 0.2 # 0.150
-        dy = 0.1 # 0.075
+        dx = 0.150
+        dy = 0.075
         dKp = 30.0
         dKd = 1.0
         self._ac_space = jp.ones((self.action_size, 2))
@@ -802,8 +803,7 @@ class AliengoGoFast(RlwamEnv):
         prev_obs = self._denormalize_obs(prev_norm_obs)
 
         scaled_action = self.scale_action(unscaled_action)
-        u, cmd = self.torque_pd_control(scaled_action, prev_norm_obs,
-                                        limit_Kp=False)
+        u, cmd = self.torque_pd_control(scaled_action, prev_norm_obs)
 
         reward, reward_components = self._reward_fn(obs, prev_obs, u,
                                                     unscaled_action, cmd)
@@ -921,7 +921,7 @@ class AliengoGoFast(RlwamEnv):
         obs = self._denormalize_obs(norm_obs)
         prev_obs = self._denormalize_obs(prev_norm_obs)
         scaled_action = self.scale_action(unscaled_action)
-        u, cmd = self.torque_pd_control(scaled_action, prev_norm_obs, limit_Kp=False)
+        u, cmd = self.torque_pd_control(scaled_action, prev_norm_obs)
 
         forward_vel_err = obs[self._forward_vel_idx]
         turn_rate_err = obs[self._turn_rate_idx]
@@ -941,7 +941,7 @@ class AliengoGoFast(RlwamEnv):
                                      u - (AliengoUtils.MOTOR_TORQUE_LIMIT - buf),
                                      0.0)
         torque_limit_under = jp.where(u < -AliengoUtils.MOTOR_TORQUE_LIMIT + buf,
-                                      -u - (-AliengoUtils.MOTOR_TORQUE_LIMIT + buf),
+                                      -u - (AliengoUtils.MOTOR_TORQUE_LIMIT - buf),
                                       0.0)
         exceeded_torques = jp.maximum(torque_limit_over, torque_limit_under)
 
@@ -1049,13 +1049,13 @@ class AliengoGoFast(RlwamEnv):
                                    obs: jp.ndarray,
                                    limit_Kp: bool = True) -> ControlCommand:
         # gait control
-        dbody_h = -0.07 # -0.05
+        dbody_h = -0.05
         if self._body_height_in_action_space:
             dbody_h = action[self._ac_dbody_h_idx]
         gait_params = AliengoGaitParams(
             period=self._period,
             r=0.5,
-            swing_h=0.12, # 0.09
+            swing_h=0.09,
             dbody_h=dbody_h,
             bias=jp.array([0.0, 0.5, 0.5, 0.0])
         )
@@ -1082,7 +1082,7 @@ class AliengoGoFast(RlwamEnv):
                         jp.tile(AliengoUtils.LOWER_JOINT_LIMITS, 4),
                         jp.tile(AliengoUtils.UPPER_JOINT_LIMITS, 4))
         qd_des = jp.zeros((12,))
-        mult = 1.0 # 1.4
+        mult = 1.4
         Kp = jp.tile(jp.array([80, 80, 80]), 4) * mult
         Kd = jp.tile(jp.array([2.5, 2.5, 2.5]), 4)
 
