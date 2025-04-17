@@ -158,7 +158,7 @@ class AliengoGoFast(RlwamEnv):
         # determines high level policy freq; (1/sim_dt)/policy_repeat Hz
         self.policy_repeat = policy_repeat
 
-        sys = AliengoUtils.get_system(used_cached_systems)
+        sys = AliengoUtils.get_approx_system(used_cached_systems)
         sys = sys.replace(dt=self.sim_dt)
 
         # here we are using the fast sim_dt with the approximate system instead
@@ -442,7 +442,7 @@ class AliengoGoFast(RlwamEnv):
 
         def f(pipeline_state, _):
             norm_obs = self._get_obs(pipeline_state, state.metrics)
-            u, _ = self.torque_pd_control(scaled_action, norm_obs)
+            u, _ = self.torque_pd_control(scaled_action, norm_obs, limit_Kp=False)
             pipeline_state = pipeline_step(sys, pipeline_state, u)
             return pipeline_state, _
 
@@ -483,7 +483,7 @@ class AliengoGoFast(RlwamEnv):
         done = self.is_done(new_norm_obs)
 
         # compute cmd for info
-        _, cmd = self.torque_pd_control(scaled_action, prev_norm_obs)
+        _, cmd = self.torque_pd_control(scaled_action, prev_norm_obs, limit_Kp=False)
         info = state.info
         info['cmd'] = cmd
 
@@ -585,7 +585,7 @@ class AliengoGoFast(RlwamEnv):
             # update obs with new q and qd from pipeline_state, but use the
             # same phase from obs
             norm_obs = self._get_obs_approx(pipeline_state, obs)
-            torques, _ = self.torque_pd_control(scaled_action, norm_obs)
+            torques, _ = self.torque_pd_control(scaled_action, norm_obs, limit_Kp=False)
             pipeline_state = self._pipeline_step_approx(pipeline_state,
                                                         torques,
                                                         ext_forces)
@@ -628,7 +628,7 @@ class AliengoGoFast(RlwamEnv):
         def f(state, _):
             # integrate q and qd, but with feedback from the torque pd control
             norm_obs = self._get_obs_approx(state, obs)
-            torques, _ = self.torque_pd_control(scaled_action, norm_obs)
+            torques, _ = self.torque_pd_control(scaled_action, norm_obs, limit_Kp=False)
             tau = actuator.to_tau(sys, torques, state.q, state.qd)
             state = state.replace(qf_smooth=(qf_smooth + tau))
             state = integrator.integrate(sys, state)
@@ -657,7 +657,7 @@ class AliengoGoFast(RlwamEnv):
 
         def f(pipeline_state, _):
             norm_obs = self._get_obs_approx(pipeline_state, obs)
-            u, _ = self.torque_pd_control(scaled_action, norm_obs)
+            u, _ = self.torque_pd_control(scaled_action, norm_obs, limit_Kp=False)
             pipeline_state = pipeline_step(self.sys, pipeline_state, u)
             return pipeline_state, _
 
@@ -802,8 +802,7 @@ class AliengoGoFast(RlwamEnv):
         prev_obs = self._denormalize_obs(prev_norm_obs)
 
         scaled_action = self.scale_action(unscaled_action)
-        u, cmd = self.torque_pd_control(scaled_action, prev_norm_obs,
-                                        limit_Kp=False)
+        u, cmd = self.torque_pd_control(scaled_action, prev_norm_obs, limit_Kp=False)
 
         reward, reward_components = self._reward_fn(obs, prev_obs, u,
                                                     unscaled_action, cmd)

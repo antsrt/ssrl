@@ -15,7 +15,7 @@ def int_multiply(x, y):
 OmegaConf.register_new_resolver("int_multiply", int_multiply)
 
 
-@hydra.main(config_path="configs", config_name="aliengo")
+@hydra.main(config_path="configs", config_name="aliengo", version_base="1.1")
 def train_aliengo(cfg: DictConfig):
 
     # set environment variables before loading anything from jax/brax
@@ -32,7 +32,7 @@ def train_aliengo(cfg: DictConfig):
     from brax.envs.aliengo_go_fast import AliengoGoFast
     from brax.training.agents.sac2 import train as sac
     from brax.training.agents.ssrl import train as ssrl
-    from brax.robots.aliengo import networks as aliengo_networks
+    from brax.robots.Aliengo import networks as aliengo_networks
     from brax.evaluate import evaluate
     from brax.io import html
     import jax
