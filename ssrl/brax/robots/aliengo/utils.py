@@ -68,7 +68,7 @@ class AliengoUtils:
     MOTOR_TORQUE_LIMIT = jp.tile(jp.array([44.0, 44.0, 55.0]), 4)
     """constant: the torque limit for the motors"""
 
-    CACHE_PATH = epath.resource_path('brax') / 'robots/Aliengo/.cache'
+    CACHE_PATH = epath.resource_path('brax') / 'robots/aliengo/.cache'
 
     @staticmethod
     def get_system(used_cached: bool = False) -> System:
@@ -79,7 +79,7 @@ class AliengoUtils:
         else:
             # load in urdf file
             path = epath.resource_path('brax')
-            path /= 'robots/Aliengo/xml/aliengo.xml'
+            path /= 'robots/aliengo/xml/aliengo.xml'
             sys = mjcf.load(path)
 
         return sys
@@ -93,7 +93,7 @@ class AliengoUtils:
         else:
             # load in urdf file
             path = epath.resource_path('brax')
-            path /= 'robots/Aliengo/xml/aliengo_approx.xml'
+            path /= 'robots/aliengo/xml/aliengo_approx.xml'
             sys = mjcf.load(path)
 
         return sys
