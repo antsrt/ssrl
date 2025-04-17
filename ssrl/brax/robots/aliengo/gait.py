@@ -1,4 +1,4 @@
-from brax.robots.Aliengo.utils import AliengoUtils
+from brax.robots.aliengo.utils import AliengoUtils
 from flax import struct
 from jax import numpy as jp
 import jax
