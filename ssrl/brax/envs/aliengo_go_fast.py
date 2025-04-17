@@ -1048,7 +1048,7 @@ class AliengoGoFast(RlwamEnv):
                                    obs: jp.ndarray,
                                    limit_Kp: bool = True) -> ControlCommand:
         # gait control
-        dbody_h = -0.05 # -0.05
+        dbody_h = -0.07 # -0.05
         if self._body_height_in_action_space:
             dbody_h = action[self._ac_dbody_h_idx]
         gait_params = AliengoGaitParams(
