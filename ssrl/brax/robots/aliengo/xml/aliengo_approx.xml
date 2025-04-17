@@ -103,7 +103,6 @@
         <body name="trunk" pos="0 0 0.55">
             <inertial pos="0.008465 0.004045 -0.000763" mass="9.041" diaginertia="0.033260231 0.16117211 0.17460442" />
             <joint name="trunk" type="free" damping="0" armature="0" frictionloss="0"/>
-            <geom size="0.323 0.075" type="capsule" rgba="0.913725 0.913725 0.847059 1" quat="0.707107 0 0.707107 0" />
 
             <body name="FR_hip" pos="0.2399 -0.051 0">
                 <inertial pos="-0.022191 -0.015144 -1.5e-05" mass="1.993" diaginertia="0.002903894 0.004907517 0.005586944" />

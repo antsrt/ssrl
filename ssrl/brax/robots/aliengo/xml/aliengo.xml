@@ -112,7 +112,6 @@
             <inertial pos="0.008465 0.004045 -0.000763" mass="9.041" diaginertia="0.033260231 0.16117211 0.17460442" />
             <joint name="trunk" type="free" damping="0" armature="0" frictionloss="0"/>
             <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.913725 0.913725 0.847059 1" mesh="trunk" />
-            <geom contype="0" conaffinity="0" size="0.323 0.075" type="capsule" rgba="0.913725 0.913725 0.847059 1" quat="0.707107 0 0.707107 0" />
 
             <body name="FR_hip" pos="0.2399 -0.051 0">
                 <inertial pos="-0.022191 -0.015144 -1.5e-05" mass="1.993" diaginertia="0.002903894 0.004907517 0.005586944" />
@@ -123,7 +122,7 @@
                     <inertial pos="-0.005607 0.003877 -0.048199" mass="0.639" diaginertia="0.005666803 0.005847229 0.000369811" />
                     <joint name="FR_thigh_joint" pos="0 0 0" axis="0 1 0" limited="true" range="-0.524 3.927" />
                     <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.913725 0.913725 0.847059 1" mesh="thigh_mirror" />
-                    
+                    я раз
                     <body name="FR_calf" pos="0 0 -0.25">
                         <inertial pos="0.002781 6.3e-05 -0.142518" mass="0.207" diaginertia="0.006341369 0.006355157 3.9188e-05" />
                         <joint name="FR_calf_joint" pos="0 0 0" axis="0 1 0" limited="true" range="-2.775 -0.611" />
