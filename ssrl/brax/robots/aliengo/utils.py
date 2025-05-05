@@ -35,13 +35,6 @@ class AliengoUtils:
         -0.2399, 0.13, -0.32
     ])
 
-    STANDING_FOOT_POSITIONS = jp.array([
-        0.2399, -0.13, -0.32,
-        0.2399, 0.13, -0.32,
-        -0.2399, -0.13, -0.32,
-        -0.2399, 0.13, -0.32
-    ])
-
     STANDING_JOINT_ANGLES_FR = jp.array([-0.01014303, 0.7180088, -1.4360176])
     STANDING_JOINT_ANGLES_FL = jp.array([0.01014303, 0.7180088, -1.4360176])
     STANDING_JOINT_ANGLES_RR = jp.array([-0.01014303, 0.7180088, -1.4360176])
