@@ -1,16 +1,16 @@
-from brax.robots.aliengo.utils import AliengoUtils
+from brax.robots.go1.utils import Go1Utils
 from flax import struct
 from jax import numpy as jp
 import jax
 
 
-STANDING_FEET_POS = AliengoUtils.standing_foot_positions()
+STANDING_FEET_POS = Go1Utils.standing_foot_positions()
 FR_STAND = STANDING_FEET_POS[0:3]
 FL_STAND = STANDING_FEET_POS[3:6]
 RR_STAND = STANDING_FEET_POS[6:9]
 RL_STAND = STANDING_FEET_POS[9:12]
-FOOT_RAD = jp.sqrt(AliengoUtils.LEG_OFFSET_X**2
-                   + (AliengoUtils.LEG_OFFSET_Y + AliengoUtils.THIGH_OFFSET)**2)
+FOOT_RAD = jp.sqrt(Go1Utils.LEG_OFFSET_X**2
+                   + (Go1Utils.LEG_OFFSET_Y + Go1Utils.THIGH_OFFSET)**2)
 foot_delta_idxs = {
     'FR': jp.s_[0:2],
     'FL': jp.s_[2:4],
@@ -20,7 +20,7 @@ foot_delta_idxs = {
 
 
 @struct.dataclass
-class AliengoGaitParams:
+class Go1GaitParams:
     period: jp.ndarray   # period of gait (sec)
     r: jp.ndarray        # fraction of gait spent in contact with ground
     swing_h: jp.ndarray  # height of foot above ground during swing (m)
@@ -28,10 +28,10 @@ class AliengoGaitParams:
     bias: jp.ndarray     # bias for each leg; shape (4,)
 
 
-class AliengoGait:
+class Go1Gait:
 
     @staticmethod
-    def control(gait_params: AliengoGaitParams,
+    def control(gait_params: Go1GaitParams,
                 forward_vel_des: jp.ndarray,
                 turn_rate_des: jp.ndarray,
                 cos_phase: jp.ndarray,
@@ -193,7 +193,7 @@ def _cycloid_xy(phi, start, end):
 
 
 if __name__ == "__main__":
-    gait_params = AliengoGaitParams(
+    gait_params = Go1GaitParams(
         period=0.5,
         r=0.5,
         swing_h=0.08,
@@ -205,6 +205,6 @@ if __name__ == "__main__":
     phase = jp.pi/6
     cos_phase = jp.array(jp.cos(phase))
     sin_phase = jp.array(jp.sin(phase))
-    pdes = AliengoGait.control(gait_params, forward_vel_des, turn_rate_des,
+    pdes = Go1Gait.control(gait_params, forward_vel_des, turn_rate_des,
                            cos_phase, sin_phase)[0]
     print(pdes)

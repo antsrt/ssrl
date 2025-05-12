@@ -6,89 +6,77 @@ import jax
 import dill
 from pathlib import Path
 
-
 class AliengoUtils:
-    """Utility functions for the Aliengo."""
+    """Utility functions for the Unitree Aliengo."""
 
-    """
-    Properties
-    """
-    THIGH_OFFSET = 0.083
-    """constant: the length of the thigh motor"""
+    # Physical constants from URDF
+    THIGH_OFFSET = 0.0868
+    """constant: the lateral offset of the thigh joint from the hip joint (m)"""
 
-    LEG_OFFSET_X = 0.2399
-    """constant: x distance from the robot COM to the leg base."""
+    LEG_OFFSET_X = 0.2407
+    """constant: x distance from the robot COM to the leg base (m)"""
 
     LEG_OFFSET_Y = 0.051
-    """constant: y distance from the robot COM to the leg base."""
+    """constant: y distance from the robot COM to the leg base (m)"""
 
     THIGH_LENGTH = 0.25
-    """constant: length of the thigh"""
+    """constant: length of the thigh (m)"""
 
     CALF_LENGTH = 0.25
-    """constant: length of the calf"""
+    """constant: length of the calf (m)"""
 
     STANDING_FOOT_POSITIONS = jp.array([
-        0.2399, -0.13, -0.32,
-        0.2399, 0.13, -0.32,
-        -0.2399, -0.13, -0.32,
-        -0.2399, 0.13, -0.32
+        0.2407, -0.1378, -0.4,  # FR
+        0.2407, 0.1378, -0.4,   # FL
+        -0.2407, -0.1378, -0.4, # RR
+        -0.2407, 0.1378, -0.4   # RL
     ])
+    """constant: approximate foot positions in body frame when standing (m). Validate with SDK or Gazebo."""
 
-    STANDING_JOINT_ANGLES_FR = jp.array([-0.01014303, 0.7180088, -1.4360176])
-    STANDING_JOINT_ANGLES_FL = jp.array([0.01014303, 0.7180088, -1.4360176])
-    STANDING_JOINT_ANGLES_RR = jp.array([-0.01014303, 0.7180088, -1.4360176])
-    STANDING_JOINT_ANGLES_RL = jp.array([0.01014303, 0.7180088, -1.4360176])
-
+    STANDING_JOINT_ANGLES_FR = jp.array([-0.01, 0.7, -1.4])
+    STANDING_JOINT_ANGLES_FL = jp.array([0.01, 0.7, -1.4])
+    STANDING_JOINT_ANGLES_RR = jp.array([-0.01, 0.7, -1.4])
+    STANDING_JOINT_ANGLES_RL = jp.array([0.01, 0.7, -1.4])
     ALL_STANDING_JOINT_ANGLES = jp.concatenate([
         STANDING_JOINT_ANGLES_FR,
         STANDING_JOINT_ANGLES_FL,
         STANDING_JOINT_ANGLES_RR,
         STANDING_JOINT_ANGLES_RL
     ])
+    """constant: approximate joint angles for standing pose (rad). Validate with SDK or Gazebo."""
 
     JOINT_LIMIT_PAD = 0.1
-    """constant: the amount to pad the joint limits"""
+    """constant: the amount to pad the joint limits (rad)"""
 
-    LOWER_JOINT_LIMITS = jp.array([-0.873, -0.524, -2.775]) + JOINT_LIMIT_PAD
-    """constant: the lower joint angle limits for a leg, obtained from
-    aliengo.xml, and offset by JOINT_LIMIT_PAD"""
+    LOWER_JOINT_LIMITS = jp.array([-1.22173, -0.663, -2.77507]) + JOINT_LIMIT_PAD
+    """constant: lower joint angle limits for a leg (rad), from URDF (hip, calf) and Go1 (thigh placeholder)"""
 
-    UPPER_JOINT_LIMITS = jp.array([1.047, 3.927, -0.611]) - JOINT_LIMIT_PAD
-    """constant: the upper joint angle limits for a leg, obtained from
-    aliengo.xml, and offset by JOINT_LIMIT_PAD"""
+    UPPER_JOINT_LIMITS = jp.array([1.22173, 2.966, -0.64577]) - JOINT_LIMIT_PAD
+    """constant: upper joint angle limits for a leg (rad), from URDF (hip, calf) and Go1 (thigh placeholder)"""
 
-    MOTOR_TORQUE_LIMIT = jp.tile(jp.array([44.0, 44.0, 55.0]), 4)
-    """constant: the torque limit for the motors"""
+    MOTOR_TORQUE_LIMIT = jp.tile(jp.array([35.278, 35.278, 44.4]), 4)
+    """constant: torque limits for hip, thigh, calf motors (N·m), from URDF"""
 
     CACHE_PATH = epath.resource_path('brax') / 'robots/aliengo/.cache'
 
     @staticmethod
     def get_system(used_cached: bool = False) -> System:
         """Returns the system for the Aliengo."""
-
         if used_cached:
             sys = AliengoUtils._load_cached_system(approx_system=False)
         else:
-            # load in urdf file
-            path = epath.resource_path('brax')
-            path /= 'robots/aliengo/xml/aliengo.xml'
+            path = epath.resource_path('brax') / 'robots/aliengo/robot.xml'
             sys = mjcf.load(path)
-
         return sys
 
     @staticmethod
     def get_approx_system(used_cached: bool = False) -> System:
         """Returns the approximate system for the Aliengo."""
-
         if used_cached:
             sys = AliengoUtils._load_cached_system(approx_system=True)
         else:
-            # load in urdf file
-            path = epath.resource_path('brax')
-            path /= 'robots/aliengo/xml/aliengo_approx.xml'
+            path = epath.resource_path('brax') / 'robots/aliengo/robot.xml'
             sys = mjcf.load(path)
-
         return sys
 
     @staticmethod
@@ -198,7 +186,7 @@ class AliengoUtils:
                             -AliengoUtils.LEG_OFFSET_Y,
                             AliengoUtils.LEG_OFFSET_Y)
 
-        px = p[0] - fx  # TODO: double check
+        px = p[0] - fx
         py = p[1] - fy
         pz = p[2]
 
@@ -206,7 +194,7 @@ class AliengoUtils:
                              -AliengoUtils.THIGH_OFFSET,
                              AliengoUtils.THIGH_OFFSET)
         b3z = -AliengoUtils.THIGH_LENGTH
-        b4z = -AliengoUtils.THIGH_LENGTH
+        b4z = -AliengoUtils.CALF_LENGTH
         a = AliengoUtils.THIGH_OFFSET
         c = jp.sqrt(px**2 + py**2 + pz**2)
         b = jp.sqrt(c**2 - a**2)
@@ -217,8 +205,6 @@ class AliengoUtils:
         temp = (b3z**2 + b4z**2 - b**2)/(2*jp.abs(b3z*b4z))
         q3max = AliengoUtils.UPPER_JOINT_LIMITS[2]
         q3min = AliengoUtils.LOWER_JOINT_LIMITS[2]
-        # instead of clipping withing -1 and 1, clip per the below to ensure q3
-        # stays within joint limits (and also prevent nan gradients)
         temp = jp.clip(temp, jp.cos(jp.pi+q3max), jp.cos(jp.pi+q3min))
         q3 = jp.arccos(temp)
         q3 = -(jp.pi - q3)
@@ -250,7 +236,7 @@ class AliengoUtils:
 
     @staticmethod
     def jacobian(leg: str, q: jp.ndarray) -> jp.ndarray:
-        """get the jacobian of the leg
+        """Get the jacobian of the leg.
 
         Arguments:
             leg (str): the name of the leg - 'FR', 'FL', 'RR', 'RL'
@@ -259,7 +245,6 @@ class AliengoUtils:
         Returns:
             jp.ndarray: the jacobian of the leg, (3, 3)
         """
-
         if leg not in ['FR', 'FL', 'RR', 'RL']:
             raise ValueError('leg must be one of FR, FL, RR, RL')
 
@@ -306,13 +291,14 @@ class AliengoUtils:
 
         Arguments:
             leg (str): the name of the leg - 'FR', 'FL', 'RR', 'RL'
-            q (jp.jp.ndarray): the joint angles of a leg; (3,)
-            qd (jp.jp.ndarray): the joint speeds of a leg; (3,)
+            q (jp.ndarray): the joint angles of a leg; (3,)
+            qd (jp.ndarray): the joint speeds of a leg; (3,)
         """
         J = AliengoUtils.jacobian(leg, q)
         vel = jp.matmul(J, qd)
         return vel
 
+    @staticmethod
     def foot_vel_all_legs(q: jp.ndarray, qd: jp.ndarray) -> jp.ndarray:
         """Returns the linear velocities of all feet in the body frame; (12,)
 
