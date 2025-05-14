@@ -65,7 +65,8 @@ class AliengoUtils:
         if used_cached:
             sys = AliengoUtils._load_cached_system(approx_system=False)
         else:
-            path = epath.resource_path('brax') / 'robots/aliengo/robot.xml'
+            path = epath.resource_path('brax')
+            path /= 'robots/aliengo/xml/aliengo.xml'
             sys = mjcf.load(path)
         return sys
 
@@ -75,7 +76,8 @@ class AliengoUtils:
         if used_cached:
             sys = AliengoUtils._load_cached_system(approx_system=True)
         else:
-            path = epath.resource_path('brax') / 'robots/aliengo/robot.xml'
+            path = epath.resource_path('brax')
+            path /= 'robots/aliengo/xml/aliengo_approx.xml'
             sys = mjcf.load(path)
         return sys
 
