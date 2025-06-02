@@ -10,8 +10,8 @@ class AliengoUtils:
     """Utility functions for the Unitree Aliengo."""
 
     # Physical constants from URDF
-    THIGH_OFFSET = 0.0868
-    """constant: the lateral offset of the thigh joint from the hip joint (m)"""
+    THIGH_OFFSET = 0.083
+    """constant: the lateral offset of the thigh joint from the hip joint (m), from Aliengo XML"""
 
     LEG_OFFSET_X = 0.2407
     """constant: x distance from the robot COM to the leg base (m)"""
@@ -48,11 +48,11 @@ class AliengoUtils:
     JOINT_LIMIT_PAD = 0.1
     """constant: the amount to pad the joint limits (rad)"""
 
-    LOWER_JOINT_LIMITS = jp.array([-1.22173, -0.663, -2.77507]) + JOINT_LIMIT_PAD
-    """constant: lower joint angle limits for a leg (rad), from URDF (hip, calf) and Go1 (thigh placeholder)"""
+    LOWER_JOINT_LIMITS = jp.array([-0.873, -0.524, -2.775]) + JOINT_LIMIT_PAD
+    """constant: lower joint angle limits for a leg (rad), from Aliengo XML"""
 
-    UPPER_JOINT_LIMITS = jp.array([1.22173, 2.966, -0.64577]) - JOINT_LIMIT_PAD
-    """constant: upper joint angle limits for a leg (rad), from URDF (hip, calf) and Go1 (thigh placeholder)"""
+    UPPER_JOINT_LIMITS = jp.array([1.047, 3.927, -0.611]) - JOINT_LIMIT_PAD
+    """constant: upper joint angle limits for a leg (rad), from Aliengo XML"""
 
     MOTOR_TORQUE_LIMIT = jp.tile(jp.array([35.278, 35.278, 44.4]), 4)
     """constant: torque limits for hip, thigh, calf motors (N·m), from URDF"""
