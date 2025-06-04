@@ -122,9 +122,8 @@
                     <inertial pos="-0.005607 0.003877 -0.048199" mass="0.639" diaginertia="0.005666803 0.005847229 0.000369811" />
                     <joint name="FR_thigh_joint" pos="0 0 0" axis="0 1 0" limited="true" range="-0.524 3.927" />
                     <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.913725 0.913725 0.847059 1" mesh="thigh_mirror" />
-                    я раз
                     <body name="FR_calf" pos="0 0 -0.25">
-                        <inertial pos="0.002781 6.3e-05 -0.142518" mass="0.207" diaginertia="0.006341369 0.006355157 3.9188e-05" />
+                        <inertial pos="0.002156 6.3e-05 -0.16666" mass="0.267" diaginertia="0.006341369 0.006355157 3.9188e-05" />
                         <joint name="FR_calf_joint" pos="0 0 0" axis="0 1 0" limited="true" range="-2.775 -0.611" />
                         <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0 0 0 1" mesh="calf" />
                         <geom size="0.0265" pos="0 0 -0.25" type="sphere" contype="1" conaffinity="1" rgba="0 0.8 0 1" />
@@ -143,7 +142,7 @@
                     <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.913725 0.913725 0.847059 1" mesh="thigh" />
                     
                     <body name="FL_calf" pos="0 0 -0.25">
-                        <inertial pos="0.002781 6.3e-05 -0.142518" mass="0.207" diaginertia="0.006341369 0.006355157 3.9188e-05" />
+                        <inertial pos="0.002156 6.3e-05 -0.16666" mass="0.267" diaginertia="0.006341369 0.006355157 3.9188e-05" />
                         <joint name="FL_calf_joint" pos="0 0 0" axis="0 1 0" limited="true" range="-2.775 -0.611" />
                         <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0 0 0 1" mesh="calf" />
                         <geom size="0.0265" pos="0 0 -0.25" type="sphere" contype="1" conaffinity="1" rgba="0 0.8 0 1" />
@@ -162,7 +161,7 @@
                     <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.913725 0.913725 0.847059 1" mesh="thigh_mirror" />
                     
                     <body name="RR_calf" pos="0 0 -0.25">
-                        <inertial pos="0.002781 6.3e-05 -0.142518" mass="0.207" diaginertia="0.006341369 0.006355157 3.9188e-05" />
+                        <inertial pos="0.002156 6.3e-05 -0.16666" mass="0.267" diaginertia="0.006341369 0.006355157 3.9188e-05" />
                         <joint name="RR_calf_joint" pos="0 0 0" axis="0 1 0" limited="true" range="-2.775 -0.611" />
                         <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0 0 0 1" mesh="calf" />
                         <geom size="0.0265" pos="0 0 -0.25" type="sphere" contype="1" conaffinity="1" rgba="0 0.8 0 1" />
@@ -181,7 +180,7 @@
                     <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.913725 0.913725 0.847059 1" mesh="thigh" />
                     
                     <body name="RL_calf" pos="0 0 -0.25">
-                        <inertial pos="0.002781 6.3e-05 -0.142518" mass="0.207" diaginertia="0.006341369 0.006355157 3.9188e-05" />
+                        <inertial pos="0.002156 6.3e-05 -0.16666" mass="0.267" diaginertia="0.006341369 0.006355157 3.9188e-05" />
                         <joint name="RL_calf_joint" pos="0 0 0" axis="0 1 0" limited="true" range="-2.775 -0.611" />
                         <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0 0 0 1" mesh="calf" />
                         <geom size="0.0265" pos="0 0 -0.25" type="sphere" contype="1" conaffinity="1" rgba="0 0.8 0 1" />

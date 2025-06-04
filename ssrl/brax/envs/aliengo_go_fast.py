@@ -276,8 +276,8 @@ class AliengoGoFast(RlwamEnv):
         self._ac_Kd_idxs = jp.s_[21:33]
 
         # define action space
-        dx = 0.2 # 0.150
-        dy = 0.1 # 0.075
+        dx = 0.15 # 0.150
+        dy = 0.075 # 0.075
         dKp = 15.0
         dKd = 2.0
         self._ac_space = jp.ones((self.action_size, 2))
@@ -1048,7 +1048,7 @@ class AliengoGoFast(RlwamEnv):
                                    obs: jp.ndarray,
                                    limit_Kp: bool = True) -> ControlCommand:
         # gait control
-        dbody_h = 0.05 # -0.05
+        dbody_h = -0.05 # -0.05
         if self._body_height_in_action_space:
             dbody_h = action[self._ac_dbody_h_idx]
         gait_params = AliengoGaitParams(
@@ -1081,8 +1081,8 @@ class AliengoGoFast(RlwamEnv):
                         jp.tile(AliengoUtils.LOWER_JOINT_LIMITS, 4),
                         jp.tile(AliengoUtils.UPPER_JOINT_LIMITS, 4))
         qd_des = jp.zeros((12,))
-        mult = 1.0 # 1.4
-        Kp = jp.tile(jp.array([55.0, 55.0, 55.0]), 4) * mult
+        mult = 1.4 # 1.4
+        Kp = jp.tile(jp.array([80.0, 80.0, 80.0]), 4) * mult
         Kd = jp.tile(jp.array([2.5, 2.5, 2.5]), 4)
 
         if self._gains_in_action_space:
