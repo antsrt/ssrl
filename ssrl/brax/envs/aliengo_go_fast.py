@@ -1081,9 +1081,9 @@ class AliengoGoFast(RlwamEnv):
                         jp.tile(AliengoUtils.LOWER_JOINT_LIMITS, 4),
                         jp.tile(AliengoUtils.UPPER_JOINT_LIMITS, 4))
         qd_des = jp.zeros((12,))
-        mult = 1.4 # 1.4
-        Kp = jp.tile(jp.array([80.0, 80.0, 80.0]), 4) * mult
-        Kd = jp.tile(jp.array([2.5, 2.5, 2.5]), 4)
+        mult = 1.8 # 1.4
+        Kp = jp.tile(jp.array([100.0, 100.0, 100.0]), 4) * mult
+        Kd = jp.tile(jp.array([8.0, 8.0, 8.0]), 4)
 
         if self._gains_in_action_space:
             Kp += action[self._ac_Kp_idxs]
