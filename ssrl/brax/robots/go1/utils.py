@@ -47,7 +47,7 @@ class Go1Utils:
         STANDING_JOINT_ANGLES_RL
     ])
 
-    JOINT_LIMIT_PAD = 0.1
+    JOINT_LIMIT_PAD = 0.10
     """constant: the amount to pad the joint limits"""
 
     LOWER_JOINT_LIMITS = jp.array([-1.047, -0.663, -2.721]) + JOINT_LIMIT_PAD

@@ -1082,9 +1082,9 @@ class Go1GoFast(RlwamEnv):
                         jp.tile(Go1Utils.LOWER_JOINT_LIMITS, 4),
                         jp.tile(Go1Utils.UPPER_JOINT_LIMITS, 4))
         qd_des = jp.zeros((12,))
-        mult = 1.4
-        Kp = jp.tile(jp.array([80, 80, 80]), 4) * mult
-        Kd = jp.tile(jp.array([2.5, 2.5, 2.5]), 4)
+        mult = 1.0
+        Kp = jp.tile(jp.array([112, 112, 112]), 4) * mult
+        Kd = jp.tile(jp.array([3.5, 3.5, 3.5]), 4)
 
         if self._gains_in_action_space:
             Kp += action[self._ac_Kp_idxs]
